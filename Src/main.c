@@ -64,7 +64,7 @@ uint8_t flag_debug_done = 0;
 uint8_t flag_table_done = 0;
 uint8_t flag_mode;
 uint8_t flag1;
-int16_t arrSkip[5];
+int16_t arrSkip[2];
 int16_t arrCompare[25];
 /* USER CODE END PV */
 
@@ -97,9 +97,8 @@ void dieuChinh_100k(AD8402 *pAD, int16_t value, TEMP_VALUE *pTemp100k)
 	for((*value100k) = (*value100k); (*value100k) > -1; (*value100k)--)
 	{
 		AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)(*value100k));
-		HAL_Delay(10);
+		HAL_Delay(100);
 		DATAPROCESS_getDebugValue();
-		*dataTrai = (*value100k);
 		if(rxDebug_t.value[IN_CHANNEL] > value)    // gia tri trai
 		{
 			*dataTrai = (*value100k);				   // luu lai gia tri ben trai, luu lai du lieu ghi cho 100k ben trai value
@@ -121,10 +120,10 @@ void dieuChinh_1k(AD8402 *pAD, int16_t value,  TEMP_VALUE *pTemp100k)
 	uint8_t *arrValue100k = pAD->arrValue_100k;  // luu byte du lieu cho 100k
 	uint8_t *arrValue1k   = pAD->arrValue_1k;	 // luu byte du lieu cho 1k
 	int16_t *value1k = &(pAD->value_1k);
+	int16_t *value100k = &(pAD->value_100k);
 	uint8_t pos = pAD->pos;
-	
 
-	//int16_t vPhai = pTemp100k->vPhai;
+	int16_t vPhai = pTemp100k->vPhai;
 	int16_t dataTrai = pTemp100k->dataTrai;
 
 
@@ -133,10 +132,8 @@ void dieuChinh_1k(AD8402 *pAD, int16_t value,  TEMP_VALUE *pTemp100k)
 	for(*value1k = 255; *value1k > -1; (*value1k)--)
 	{
 		AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)(*value1k));
-		HAL_Delay(10);
+		HAL_Delay(100);
 		DATAPROCESS_getDebugValue();
-		temp1 = rxDebug_t.value[IN_CHANNEL];
-		temp2 = *value1k;
 		if((rxDebug_t.value[IN_CHANNEL] > value))
 		{
 			temp1 = rxDebug_t.value[IN_CHANNEL];
@@ -160,6 +157,13 @@ void dieuChinh_1k(AD8402 *pAD, int16_t value,  TEMP_VALUE *pTemp100k)
 			}			
 			break;
 		}
+	}
+	// Neu gia tri ben phai khi dieu chinh 100k nho hon gia tri can dieu chinh tiep theo
+	// thi gia tri dieu chinh lan tiep theo phai tu gia tri ben trai
+	if(vPhai < rxTable_t.value[pos+1])
+	{
+		AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)dataTrai); // ghi lai gia tri ben trai
+		*value100k = dataTrai;
 	}
 }
 
@@ -424,27 +428,20 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-		DATAPROCESS_getDebugValue();
-		HAL_Delay(100);
+		for(uint8_t i = 0; i < 2; i++)
+		{
+			DATAPROCESS_getDebugValue();
+			arrSkip[i] = rxDebug_t.value[IN_CHANNEL];
+		}
   	for(TDS_IN.pos = 2; TDS_IN.pos < rxTable_t.countVT; TDS_IN.pos++)
 		{
-			//if(rxDebug_t.value[IN_CHANNEL] > 1000)
-			//{
+			if(rxDebug_t.value[IN_CHANNEL] > rxTable_t.value[TDS_IN.pos])
+			{
 				dieuChinh_100k(&TDS_IN, rxTable_t.value[TDS_IN.pos], &temp100k_t);
 				dieuChinh_1k(&TDS_IN, rxTable_t.value[TDS_IN.pos], &temp100k_t);
-			//}
-			//else
-			//{
-//				dieuChinh_1k(&TDS_IN, rxTable_t.value[TDS_IN.pos]);
-				//dieuChinh_100k(&TDS_IN, rxTable_t.value[TDS_IN.pos]);
-			//}
+			}
 		}
 
-//		for(TDS_IN.value_1k = 255; TDS_IN.value_1k > - 1; TDS_IN.value_1k--)
-//		{
-//			AD8402_writeData(_1k, IN_CHANNEL, TDS_IN.value_1k);
-//			DATAPROCESS_getDebugValue();
-//		}
 		while(1)
 		{
 			HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
@@ -452,7 +449,6 @@ int main(void)
 		}
   }
   /* USER CODE END 3 */
-
 }
 
 /**
