@@ -31,5 +31,12 @@ typedef struct
 	int16_t value[25];  /* mang luu gia tri khi tach ra */
 } RX_TYPE;
 
+typedef struct
+{
+	int16_t vTrai;			// gia tri ADC ben trai value khi dieu chinh 100k
+	int16_t vPhai;			// gia tri ADC ben phai value khi dieu chinh 100k
+	int16_t dataTrai;		// gia tri du lieu ben trai value ghi cho 100k
+	int16_t dataPhai;		// gia tri du lieu ben phai value ghi cho 100k
+} TEMP_VALUE;
 
 #endif
