@@ -1,0 +1,28 @@
+--cpu Cortex-M3
+"iro_v2\startup_stm32f103xb.o"
+"iro_v2\main.o"
+"iro_v2\gpio.o"
+"iro_v2\tim.o"
+"iro_v2\usart.o"
+"iro_v2\stm32f1xx_it.o"
+"iro_v2\stm32f1xx_hal_msp.o"
+"iro_v2\ad8402.o"
+"iro_v2\dataprocess.o"
+"iro_v2\stm32f1xx_hal_gpio_ex.o"
+"iro_v2\stm32f1xx_hal_tim.o"
+"iro_v2\stm32f1xx_hal_tim_ex.o"
+"iro_v2\stm32f1xx_hal_uart.o"
+"iro_v2\stm32f1xx_hal.o"
+"iro_v2\stm32f1xx_hal_rcc.o"
+"iro_v2\stm32f1xx_hal_rcc_ex.o"
+"iro_v2\stm32f1xx_hal_gpio.o"
+"iro_v2\stm32f1xx_hal_dma.o"
+"iro_v2\stm32f1xx_hal_cortex.o"
+"iro_v2\stm32f1xx_hal_pwr.o"
+"iro_v2\stm32f1xx_hal_flash.o"
+"iro_v2\stm32f1xx_hal_flash_ex.o"
+"iro_v2\system_stm32f1xx.o"
+--strict --scatter "IRO_V2\IRO_V2.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "IRO_V2.map" -o IRO_V2\IRO_V2.axf
