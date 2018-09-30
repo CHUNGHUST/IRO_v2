@@ -41,8 +41,9 @@
 
 extern RX_buffer rxBuffer_t;
 extern uint8_t flag_debug_done;
+extern uint8_t flag_adc_done;
+extern uint8_t flag_tds_done;
 extern uint8_t flag_mode;
-extern uint8_t flag_table_done;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -273,7 +274,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				if(rxBuffer_t.arrRX[0] == '[') flag_debug_done = OK; 
 				else HAL_UART_Receive_IT(&huart1, (uint8_t*)&rxBuffer_t.byteRX, 1);  // neu nhan het 1 chuoi ma ky tu dau khong phai '[' thi nhan lai			
 			}
-			else if(flag_mode == TABLE_MODE && flag_table_done == NO) flag_table_done = OK; 	  // chi nhan 1 lan ADC table  
+			else if(flag_mode == ADC_MODE && flag_adc_done == NO) flag_adc_done = OK; 	  // chi nhan 1 lan ADC table  
+			else if(flag_mode == TDS_MODE && flag_tds_done == NO) flag_tds_done = OK;			// chi nhan 1 lan TDS table 
 		}
 	}
 }

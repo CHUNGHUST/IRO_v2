@@ -57,6 +57,11 @@ void DATAPROCESS_layGiaTri(uint8_t *flag, RX_TYPE *RX);
 void DATAPROCESS_getAdcTable(void);
 
 /* 
+ * @biref: lay bang TDS_TABLE
+ */
+void DATAPROCESS_getTdsTable(void);
+
+/* 
  * @biref: bo qua chuoi ban tin xac nhan DEBUG
  */
 void DATAPROCESS_skipAckDebug(void);

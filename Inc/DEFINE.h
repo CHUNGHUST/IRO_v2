@@ -34,12 +34,21 @@
 #define EN  1
 #define DIS 0
 
+#define ADC_MODE   0
 #define DEBUG_MODE 1
-#define TABLE_MODE 0
+#define TDS_MODE   2
+
+
+
+#define DATA_MAX 255
+#define DATA_MIN 0
 
 /* cac lenh giao tiep voi IRO */
-#define GET_TABLE_CNO 	HAL_UART_Transmit(&huart1, (uint8_t*)"[ADC_TABLE,1]", 13, 100);
-#define GET_TABLE_CNI 	HAL_UART_Transmit(&huart1, (uint8_t*)"[ADC_TABLE,0]", 13, 100);
+#define GET_ADC_CNO 	HAL_UART_Transmit(&huart1, (uint8_t*)"[ADC_TABLE,1]", 13, 100);
+#define GET_ADC_CNI 	HAL_UART_Transmit(&huart1, (uint8_t*)"[ADC_TABLE,0]", 13, 100);
+#define GET_TDS_IN      HAL_UART_Transmit(&huart1, (uint8_t*)"[TDS_TABLE,0]", 13, 100);
+#define GET_TDS_OUT     HAL_UART_Transmit(&huart1, (uint8_t*)"[TDS_TABLE,1]", 13, 100);
+
 
 #define DEBUG_ON				HAL_UART_Transmit(&huart1, (uint8_t*)"[DEBUG_EN,1]", 12, 100);
 #define DEBUG_OFF				HAL_UART_Transmit(&huart1, (uint8_t*)"[DEBUG_EN,0]", 12, 100);

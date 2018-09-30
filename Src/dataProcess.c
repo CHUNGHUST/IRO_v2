@@ -7,9 +7,10 @@
 #include <string.h>
 
 extern RX_buffer rxBuffer_t;
-extern RX_TYPE rxTable_t, rxDebug_t;
+extern RX_TYPE rxAdcTable[2], rxTdsTable[2], rxDebug_t;  // IN:0, OUT:1
 extern uint8_t flag_debug_done;
-extern uint8_t flag_table_done;
+extern uint8_t flag_adc_done;
+extern uint8_t flag_tds_done;
 extern uint8_t flag_mode;
 
 extern UART_HandleTypeDef huart1;
@@ -83,11 +84,28 @@ void DATAPROCESS_getAdcTable()
 {
 	/* cho phep nhan 1 ky tu roi nhay vao ngat */
 	HAL_UART_Receive_IT(&huart1, (uint8_t*)&rxBuffer_t.byteRX, 1);
-	flag_mode = TABLE_MODE;
-	GET_TABLE_CNI;
-	
-	DATAPROCESS_layGiaTri(&flag_table_done, &rxTable_t);
+	flag_mode = ADC_MODE;
+	GET_ADC_CNI;	
+	DATAPROCESS_layGiaTri(&flag_adc_done, &rxAdcTable[IN_CHANNEL]);
+
+	HAL_UART_Receive_IT(&huart1, (uint8_t*)&rxBuffer_t.byteRX, 1);
+	GET_ADC_CNO;	
+	DATAPROCESS_layGiaTri(&flag_adc_done, &rxAdcTable[OUT_CHANNEL]);
 }
+
+void DATAPROCESS_getTdsTable()
+{
+	/* cho phep nhan 1 ky tu roi nhay vao ngat */
+	HAL_UART_Receive_IT(&huart1, (uint8_t*)&rxBuffer_t.byteRX, 1);
+	flag_mode = TDS_MODE;
+	GET_TDS_IN;	
+	DATAPROCESS_layGiaTri(&flag_tds_done, &rxTdsTable[IN_CHANNEL]);
+
+	HAL_UART_Receive_IT(&huart1, (uint8_t*)&rxBuffer_t.byteRX, 1);
+	GET_TDS_OUT;	
+	DATAPROCESS_layGiaTri(&flag_tds_done, &rxTdsTable[OUT_CHANNEL]);
+}
+
 
 void DATAPROCESS_skipAckDebug()
 {

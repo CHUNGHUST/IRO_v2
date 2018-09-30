@@ -1,0 +1,297 @@
+///* ham nay dieu chinh dien tro 100k sao cho gia tri ADC tra ve bam voi value
+// * tra ve 1 neu gia tri dieu chinh > value
+// * tra ve 0 neu gia tri dieu chinh < value
+// */
+//uint8_t dieuChinh_100k(AD8402 *ptr, int16_t value)
+//{
+//	uint8_t *arrValue = ptr->arrValue_100k;
+//	int16_t *value100k = &(ptr->value_100k);
+//	int16_t tempV = ptr->value_100k;
+//	if(tempV < 0) tempV = *value100k = 0;
+//	else if(tempV > 255) tempV = *value100k = 255;
+//	uint8_t pos = (ptr->pos);
+//	int16_t temp1, temp2;
+//	uint8_t flag = 0;
+//	
+//	if(rxDebug_t.value[IN_CHANNEL] > rxTable_t.value[TDS_IN.pos]) // neu gia tri ADC gui ve lon hon gia tri co san thi moi dieu chinh  // gia tri o ben trai value
+//	{
+//		if((*value100k) == 0) { arrValue[pos] = (*value100k); arrCompare[pos] = rxDebug_t.value[IN_CHANNEL]; }			
+//		else
+//		{
+//			for((*value100k) = tempV; (*value100k) > -1; (*value100k)--)
+//			{
+//				AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)(*value100k));
+//				HAL_Delay(10);
+//				DATAPROCESS_getDebugValue();
+//				temp1 = (*value100k);
+//				temp2 = rxDebug_t.value[IN_CHANNEL];
+//				if(rxDebug_t.value[IN_CHANNEL] > value)		// gia tri trai
+//				{
+//					temp1 = (*value100k);
+//					temp2 = rxDebug_t.value[IN_CHANNEL];
+//				}
+
+//				else		// gia tri phai
+//				{
+//					// so sanh do chenh lech gia tri trai va phai so voi value
+//					// neu gia tri do chenh cua gia tri trai so voi value nho hon thi lay gia tri trai
+//					// neu gia tri do chenh cua gia tri phai so voi value nho hon thi lay gia tri phai
+//					if((temp2 - value) < (value - rxDebug_t.value[IN_CHANNEL]))
+//					{
+//						arrValue[pos]  = (uint8_t)temp1;
+//						AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)temp1);
+//						//arrCompare[pos] = rxDebug_t.value[IN_CHANNEL];
+//						flag = 1;
+//					}
+
+//					else
+//					{
+//						arrValue[pos] = (uint8_t)(*value100k);
+//						//arrCompare[pos] = rxDebug_t.value[IN_CHANNEL];
+//						flag = 0;
+//					}
+//					break;
+//				}
+//			}
+//		}
+//	}
+
+//	else // gia tri o ben phai value
+//	{
+//		if((*value100k) == 255) { arrValue[pos] = (*value100k); arrCompare[pos] = rxDebug_t.value[IN_CHANNEL]; }
+//		else
+//		{
+//			for((*value100k) = tempV; (*value100k) < 256; (*value100k)++)
+//			{
+//				AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)(*value100k));
+//				HAL_Delay(10);
+//				DATAPROCESS_getDebugValue();
+//				temp1 = (*value100k);
+//				temp2 = rxDebug_t.value[IN_CHANNEL];
+//				if(rxDebug_t.value[IN_CHANNEL] < value)		// gia tri phai
+//				{
+//					temp1 = (*value100k);
+//					temp2 = rxDebug_t.value[IN_CHANNEL];
+//				}
+
+//				else		// gia tri trai
+//				{
+//					// so sanh do chenh lech gia tri trai va phai so voi value
+//					// neu gia tri do chenh cua gia tri trai so voi value nho hon thi lay gia tri trai
+//					// neu gia tri do chenh cua gia tri phai so voi value nho hon thi lay gia tri phai
+//					if((value - temp2) < (rxDebug_t.value[IN_CHANNEL] - value))
+//					{
+//						arrValue[pos]  = (uint8_t)temp1;
+//						AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)temp1);
+//						arrCompare[pos] = temp2;
+//						flag = 0;
+//					}
+
+//					else
+//					{
+//						arrValue[pos] = (uint8_t)(*value100k);
+//						arrCompare[pos] = rxDebug_t.value[IN_CHANNEL];
+//						flag = 1;
+//					}
+//					break;
+//				}
+//			}
+//		}
+//	}
+//	return flag;
+//}
+
+///* Ham nay dieu chinh dien tro 1k
+// * Sau khi dieu chinh 100k, neu gia tri lay o ben trai ( > value) thi phai giam dien tro 1k
+// * Neu gia tri lay o ben phai ( < value) thi phai tang dien tro 1k
+// * Sau khi dieu chinh tang giam, cung so sanh gia tri do chenh lech o 2 ben 
+// */
+//void dieuChinh_1k(AD8402 *ptr, int16_t value)
+//{
+//	uint8_t *arrValue = ptr->arrValue_1k;
+//	int16_t *value1k = &(ptr->value_1k);
+//	int16_t tempV = ptr->value_1k;
+//	if(tempV < 0) tempV = *value1k =  0;
+//	else if(tempV > 255) tempV = *value1k = 255;
+//	uint8_t pos = (ptr->pos);
+//	int16_t temp1, temp2;
+//	
+//	if(rxDebug_t.value[IN_CHANNEL] > rxTable_t.value[TDS_IN.pos]) // gia tri o ben trai value
+//	{
+//		if((*value1k) == 0) { arrValue[pos] = (*value1k); arrCompare[pos] = rxDebug_t.value[IN_CHANNEL]; }			
+//		else
+//		{
+//			for((*value1k) = tempV; (*value1k) > -1; (*value1k)--)
+//			{
+//				AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)(*value1k));
+//				HAL_Delay(10);
+//				DATAPROCESS_getDebugValue();
+//				temp1 = (*value1k);
+//				temp2 = rxDebug_t.value[IN_CHANNEL];
+//				if(rxDebug_t.value[IN_CHANNEL] > value)		// gia tri trai
+//				{
+//					temp1 = (*value1k);
+//					temp2 = rxDebug_t.value[IN_CHANNEL];
+//				}
+
+//				else		// gia tri phai
+//				{
+//					// so sanh do chenh lech gia tri trai va phai so voi value
+//					// neu gia tri do chenh cua gia tri trai so voi value nho hon thi lay gia tri trai
+//					// neu gia tri do chenh cua gia tri phai so voi value nho hon thi lay gia tri phai
+//					if((temp2 - value) < (value - rxDebug_t.value[IN_CHANNEL]))
+//					{
+//						arrValue[pos]  = (uint8_t)temp1;
+//						AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)temp1);
+//						arrCompare[pos] = temp2;
+//					}
+
+//					else
+//					{
+//						arrValue[pos] = (uint8_t)temp1;
+//						arrCompare[pos] = rxDebug_t.value[IN_CHANNEL];
+//						(*value1k) = temp1;
+//						AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)temp1);
+//					}
+//					break;
+//				}
+//			}
+//		}
+//	}
+
+//	else // gia tri o ben phai value
+//	{
+//		if((*value1k) == 255) { arrValue[pos] = (*value1k); arrCompare[pos] = rxDebug_t.value[IN_CHANNEL]; }
+//		else
+//		{
+//			for((*value1k) = tempV; (*value1k) < 256; (*value1k)++)
+//			{
+//				AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)(*value1k));
+//				HAL_Delay(10);
+//				DATAPROCESS_getDebugValue();
+//				temp1 = (*value1k);
+//				temp2 = rxDebug_t.value[IN_CHANNEL];
+//				if(rxDebug_t.value[IN_CHANNEL] <  value)		// gia tri phai
+//				{
+//					temp1 = (uint8_t)(*value1k);
+//					temp2 = rxDebug_t.value[IN_CHANNEL];
+//				}
+
+//				else		// gia tri trai
+//				{
+//					// so sanh do chenh lech gia tri trai va phai so voi value
+//					// neu gia tri do chenh cua gia tri trai so voi value nho hon thi lay gia tri trai
+//					// neu gia tri do chenh cua gia tri phai so voi value nho hon thi lay gia tri phai
+//					if((value - temp2) < (rxDebug_t.value[IN_CHANNEL] - value))
+//					{
+//						arrValue[pos]  = (uint8_t)temp1;
+//						AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)temp1);
+//						arrCompare[pos] = temp2;
+//					}
+
+//					else
+//					{
+//						arrValue[pos] = (uint8_t)(*value1k);
+//						arrCompare[pos] = rxDebug_t.value[IN_CHANNEL];
+//						(*value1k) = temp1;
+//						AD8402_writeData(_1k, IN_CHANNEL, (uint8_t)temp1);
+//					}
+//					break;
+//				}
+//			}	
+//		}
+//	}
+//}
+
+
+/*
+ Ham nay chinh tho: chinh dien tro 100k tra ve 2 gia tri o 2 ben gia tri value: vTrai > value, vPhai < value
+ *
+
+void dieuChinh_100k(AD8402 *pAD, int16_t value, TEMP_VALUE *pTemp100k)
+{
+	int16_t *value100k = &(pAD->value_100k);
+	if((*value100k) < DATA_MIN)  (*value100k) = DATA_MIN;
+	else if((*value100k) > DATA_MAX)  (*value100k) = DATA_MAX;
+
+	int16_t *vTrai = &(pTemp100k->vTrai);
+	int16_t *vPhai = &(pTemp100k->vPhai);
+	int16_t *dataTrai = &(pTemp100k->dataTrai);
+	int16_t *dataPhai = &(pTemp100k->dataPhai);
+	
+
+	AD8402_writeData(_1k, OUT_CHANNEL, DATA_MAX); // ghi gia tri max cho 1k
+	for((*value100k) = (*value100k); (*value100k) >= DATA_MIN; (*value100k)--)
+	{
+		AD8402_writeData(_100k, OUT_CHANNEL, (uint8_t)(*value100k));
+		HAL_Delay(100);
+		DATAPROCESS_getDebugValue();
+		if(rxDebug_t.value[OUT_CHANNEL] > value)    // gia tri trai
+		{
+			*dataTrai = (*value100k);				   // luu lai gia tri ben trai, luu lai du lieu ghi cho 100k ben trai value
+			*vTrai = rxDebug_t.value[OUT_CHANNEL];  // luu gia tri ADC ben trai
+		}
+
+		else		// gia tri phai
+		{	
+			*dataPhai = (*value100k);
+			*vPhai = rxDebug_t.value[OUT_CHANNEL];				
+			AD8402_writeData(_100k, OUT_CHANNEL, (uint8_t)(*dataTrai)); // ghi lai gia tri ben trai
+			break;
+		}
+	}
+}
+
+void dieuChinh_1k(AD8402 *pAD, int16_t value,  TEMP_VALUE *pTemp100k)
+{
+	uint8_t *arrValue100k = pAD->arrValue_100k;  // luu byte du lieu cho 100k
+	uint8_t *arrValue1k   = pAD->arrValue_1k;	 // luu byte du lieu cho 1k
+	int16_t *value1k = &(pAD->value_1k);
+	int16_t *value100k = &(pAD->value_100k);
+	uint8_t pos = pAD->pos;
+
+	int16_t vPhai = pTemp100k->vPhai;
+	int16_t dataTrai = pTemp100k->dataTrai;
+
+
+	int16_t temp1, temp2;
+	
+	for(*value1k = DATA_MAX; *value1k >= DATA_MIN; (*value1k)--)
+	{
+		AD8402_writeData(_1k, OUT_CHANNEL, (uint8_t)(*value1k));
+		HAL_Delay(100);
+		DATAPROCESS_getDebugValue();
+		if((rxDebug_t.value[OUT_CHANNEL] > value))
+		{
+			temp1 = rxDebug_t.value[OUT_CHANNEL];
+			temp2 = *value1k;			
+		}
+
+		else
+		{
+			if((temp1 - value) < (value - rxDebug_t.value[OUT_CHANNEL]))
+			{
+				arrValue100k[pos] = dataTrai;
+				arrValue1k[pos] = temp2;
+				arrCompare[pos] = temp1;
+			}
+
+			else
+			{
+				arrValue100k[pos] = dataTrai;
+				arrValue1k[pos] = *value1k;
+				arrCompare[pos] = rxDebug_t.value[OUT_CHANNEL];
+			}			
+			break;
+		}
+	}
+	// Neu gia tri ben phai khi dieu chinh 100k nho hon gia tri can dieu chinh tiep theo
+	// thi gia tri dieu chinh lan tiep theo phai tu gia tri ben trai
+	if(vPhai < rxAdcTableIn_t.value[pos+1])
+	{
+		AD8402_writeData(_100k, OUT_CHANNEL, (uint8_t)dataTrai); // ghi lai gia tri ben trai
+		*value100k = dataTrai;
+	}
+}
+
+*/
