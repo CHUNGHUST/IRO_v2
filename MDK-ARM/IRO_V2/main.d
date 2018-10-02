@@ -33,4 +33,5 @@ iro_v2\main.o: ../Inc/DEFINE.h
 iro_v2\main.o: ../Inc/AD8402.h
 iro_v2\main.o: ../Inc/dataProcess.h
 iro_v2\main.o: ../Inc/dataType.h
+iro_v2\main.o: ../Inc/flash.h
 iro_v2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

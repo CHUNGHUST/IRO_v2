@@ -47,6 +47,7 @@
 #include "DEFINE.h"
 #include "AD8402.h"
 #include "dataProcess.h"
+#include "flash.h"
 #include <stdlib.h>
 /* USER CODE END Includes */
 
@@ -66,6 +67,8 @@ uint8_t flag_tds_done = 0;
 uint8_t flag_mode;
 int16_t arrSkip[4];
 int16_t arrCompare[2][25];
+uint8_t pos;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,41 +85,41 @@ void SystemClock_Config(void);
  * Ham nay chinh tho: chinh dien tro 100k tra ve 2 gia tri o 2 ben gia tri value: vTrai > value, vPhai < value
  */
 
-void dieuChinh_100k(AD8402 *pAD[], int16_t value[], TEMP_VALUE *pTemp100k[])
+void dieuChinh_100k(AD8402 *pAD, int16_t value[], TEMP_VALUE *pTemp100k)
 {
 	uint8_t stopIn = OFF, stopOut = OFF;
 	// IN_CHANNEL
-	int16_t *value100k_IN = &(pAD[IN_CHANNEL]->value_100k);
+	int16_t *value100k_IN = &(pAD[IN_CHANNEL].value_100k);
 	if((*value100k_IN) < DATA_MIN)  (*value100k_IN) = DATA_MIN;
 	else if((*value100k_IN) > DATA_MAX)  (*value100k_IN) = DATA_MAX;
 	
-	int16_t *vTrai_IN = &(pTemp100k[IN_CHANNEL]->vTrai);
-	int16_t *vPhai_IN = &(pTemp100k[IN_CHANNEL]->vPhai);
-	int16_t *dataTrai_IN = &(pTemp100k[IN_CHANNEL]->dataTrai);
-	int16_t *dataPhai_IN = &(pTemp100k[IN_CHANNEL]->dataPhai);
+	int16_t *vTrai_IN = &(pTemp100k[IN_CHANNEL].vADC_Trai);
+	int16_t *vPhai_IN = &(pTemp100k[IN_CHANNEL].vADC_Phai);
+	int16_t *dataTrai_IN = &(pTemp100k[IN_CHANNEL].dataTrai);
+	int16_t *dataPhai_IN = &(pTemp100k[IN_CHANNEL].dataPhai);
 	// OUT_CHANNEL
-	int16_t *value100k_OUT = &(pAD[IN_CHANNEL]->value_100k);
+	int16_t *value100k_OUT = &(pAD[OUT_CHANNEL].value_100k);
 	if((*value100k_OUT) < DATA_MIN)  (*value100k_OUT) = DATA_MIN;
 	else if((*value100k_OUT) > DATA_MAX)  (*value100k_OUT) = DATA_MAX;
 
-	int16_t *vTrai_OUT = &(pTemp100k[OUT_CHANNEL]->vTrai);
-	int16_t *vPhai_OUT = &(pTemp100k[OUT_CHANNEL]->vPhai);
-	int16_t *dataTrai_OUT = &(pTemp100k[OUT_CHANNEL]->dataTrai);
-	int16_t *dataPhai_OUT = &(pTemp100k[OUT_CHANNEL]->dataPhai);
+	int16_t *vTrai_OUT = &(pTemp100k[OUT_CHANNEL].vADC_Trai);
+	int16_t *vPhai_OUT = &(pTemp100k[OUT_CHANNEL].vADC_Phai);
+	int16_t *dataTrai_OUT = &(pTemp100k[OUT_CHANNEL].dataTrai);
+	int16_t *dataPhai_OUT = &(pTemp100k[OUT_CHANNEL].dataPhai);
 	
 
 	AD8402_writeData(_1k, IN_CHANNEL, DATA_MAX); // ghi gia tri max cho 1k kenh IN
 	AD8402_writeData(_1k, OUT_CHANNEL, DATA_MAX); // ghi gia tri max cho 1k kenh OUT
 	for((*value100k_IN) = (*value100k_IN), (*value100k_OUT) = (*value100k_OUT);;)
 	{
-		if((*value100k_IN) >= DATA_MIN || (*value100k_OUT) >= DATA_MIN)
+		if(((*value100k_IN) >= DATA_MIN) || ((*value100k_OUT) >= DATA_MIN))
 		{
-			if(stopIn == OFF  && (*value100k_IN) >= DATA_MIN)  AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)(*value100k_IN));
-			if(stopOut == OFF && (*value100k_OUT) >= DATA_MIN) AD8402_writeData(_100k, OUT_CHANNEL, (uint8_t)(*value100k_OUT));
+			if((stopIn == OFF)  && ((*value100k_IN) >= DATA_MIN))  AD8402_writeData(_100k, IN_CHANNEL, (uint8_t)(*value100k_IN));
+			if((stopOut == OFF) && ((*value100k_OUT) >= DATA_MIN)) AD8402_writeData(_100k, OUT_CHANNEL, (uint8_t)(*value100k_OUT));
 			HAL_Delay(100);
 			DATAPROCESS_getDebugValue();
 
-			if(stopIn == OFF && (*value100k_IN) >= DATA_MIN)
+			if((stopIn == OFF) && ((*value100k_IN) >= DATA_MIN))
 			{
 				if(rxDebug_t.value[IN_CHANNEL] > value[IN_CHANNEL])    // gia tri trai
 				{
@@ -134,7 +137,7 @@ void dieuChinh_100k(AD8402 *pAD[], int16_t value[], TEMP_VALUE *pTemp100k[])
 				}
 			}
 
-			if(stopOut == OFF && (*value100k_OUT) >= DATA_MIN)
+			if((stopOut == OFF) && ((*value100k_OUT) >= DATA_MIN))
 			{
 				if(rxDebug_t.value[OUT_CHANNEL] > value[OUT_CHANNEL])    // gia tri trai
 				{
@@ -152,30 +155,30 @@ void dieuChinh_100k(AD8402 *pAD[], int16_t value[], TEMP_VALUE *pTemp100k[])
 				}
 			}
 
-			if(stopIn == ON && stopOut == ON) break;
+			if((stopIn == ON) && (stopOut == ON)) break;
 		}
 	}
 }
 
-void dieuChinh_1k(AD8402 *pAD[], int16_t value[],  TEMP_VALUE *pTemp100k[])
+void dieuChinh_1k(AD8402 *pAD, int16_t value[],  TEMP_VALUE *pTemp100k)
 {
 	uint8_t stopIn= OFF, stopOut = OFF;
-	uint8_t *arrValue100k_IN = pAD[IN_CHANNEL]->arrValue_100k;  // luu byte du lieu cho 100k
-	uint8_t *arrValue1k_IN   = pAD[IN_CHANNEL]->arrValue_1k;	 // luu byte du lieu cho 1k
-	int16_t *value1k_IN = &(pAD[IN_CHANNEL]->value_1k);
-	int16_t *value100k_IN = &(pAD[IN_CHANNEL]->value_100k);
-	uint8_t pos = pAD[IN_CHANNEL]->pos;
-	int16_t vPhai_IN = pTemp100k[IN_CHANNEL]->vPhai;
-	int16_t dataTrai_IN = pTemp100k[IN_CHANNEL]->dataTrai;
+	uint8_t *arrValue100k_IN = pAD[IN_CHANNEL].arrValue_100k;  // luu byte du lieu cho 100k
+	uint8_t *arrValue1k_IN   = pAD[IN_CHANNEL].arrValue_1k;	 // luu byte du lieu cho 1k
+	int16_t *value1k_IN = &(pAD[IN_CHANNEL].value_1k);
+	int16_t *value100k_IN = &(pAD[IN_CHANNEL].value_100k);
+	//uint8_t pos = pAD[IN_CHANNEL].pos;
+	int16_t vPhai_IN = pTemp100k[IN_CHANNEL].vADC_Phai;
+	int16_t dataTrai_IN = pTemp100k[IN_CHANNEL].dataTrai;
 	int16_t temp1, temp2;
 
 
-	uint8_t *arrValue100k_OUT = pAD[OUT_CHANNEL]->arrValue_100k;  // luu byte du lieu cho 100k
-	uint8_t *arrValue1k_OUT   = pAD[OUT_CHANNEL]->arrValue_1k;	 // luu byte du lieu cho 1k
-	int16_t *value1k_OUT = &(pAD[OUT_CHANNEL]->value_1k);
-	int16_t *value100k_OUT = &(pAD[OUT_CHANNEL]->value_100k);
-	int16_t vPhai_OUT = pTemp100k[OUT_CHANNEL]->vPhai;
-	int16_t dataTrai_OUT = pTemp100k[OUT_CHANNEL]->dataTrai;
+	uint8_t *arrValue100k_OUT = pAD[OUT_CHANNEL].arrValue_100k;  // luu byte du lieu cho 100k
+	uint8_t *arrValue1k_OUT   = pAD[OUT_CHANNEL].arrValue_1k;	 // luu byte du lieu cho 1k
+	int16_t *value1k_OUT = &(pAD[OUT_CHANNEL].value_1k);
+	int16_t *value100k_OUT = &(pAD[OUT_CHANNEL].value_100k);
+	int16_t vPhai_OUT = pTemp100k[OUT_CHANNEL].vADC_Phai;
+	int16_t dataTrai_OUT = pTemp100k[OUT_CHANNEL].dataTrai;
 	int16_t temp3, temp4;
 	
 	for(*value1k_IN = DATA_MAX, *value1k_OUT = DATA_MAX;;)
@@ -281,7 +284,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  int16_t value[2];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -331,15 +334,19 @@ int main(void)
 			arrSkip[i+2] = rxDebug_t.value[OUT_CHANNEL];
 		}
 		
-//  	for(TDS_OUT.pos = 2; TDS_OUT.pos < rxAdcTableOut_t.countVT; TDS_OUT.pos++)
-//		{
-//			if(rxDebug_t.value[OUT_CHANNEL] > rxAdcTableOut_t.value[TDS_OUT.pos])
-//			{
-//				dieuChinh_100k(&TDS_OUT, rxAdcTableOut_t.value[TDS_OUT.pos], &temp100k_t);
-//				dieuChinh_1k(&TDS_OUT, rxAdcTableOut_t.value[TDS_OUT.pos], &temp100k_t);
-//			}
-//		}
+  	for(pos = 2; pos < rxAdcTable[IN_CHANNEL].countVT; pos++)
+		{
+			value[IN_CHANNEL] =  rxAdcTable[IN_CHANNEL].value[pos];
+  		    value[OUT_CHANNEL] = rxAdcTable[OUT_CHANNEL].value[pos];
+			if(rxDebug_t.value[IN_CHANNEL] > rxAdcTable[IN_CHANNEL].value[pos] && rxDebug_t.value[OUT_CHANNEL] > rxAdcTable[OUT_CHANNEL].value[pos])
+			{
+				dieuChinh_100k(TDS, value, temp100k_t);
+				dieuChinh_1k(TDS, value, temp100k_t);
+			}
+		}
 
+		FLASH_writeParams();
+		
 		while(1)
 		{
 			HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);

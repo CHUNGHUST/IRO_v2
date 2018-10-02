@@ -8,6 +8,7 @@
 "iro_v2\stm32f1xx_hal_msp.o"
 "iro_v2\ad8402.o"
 "iro_v2\dataprocess.o"
+"iro_v2\flash.o"
 "iro_v2\stm32f1xx_hal_gpio_ex.o"
 "iro_v2\stm32f1xx_hal_tim.o"
 "iro_v2\stm32f1xx_hal_tim_ex.o"
